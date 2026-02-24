@@ -10,7 +10,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        <style>{`
+          [class*="nextjs-"], [id*="nextjs-"], .nextjs-toast, [data-nextjs-toast] {
+            display: none !important;
+            visibility: hidden !important;
+          }
+        `}</style>
+      </head>
+      <body
+        className={inter.className}
+        {...{
+          "data-nordpass-ignore": "true",
+          "data-lpignore": "true",
+          "data-dashlane-ignore": "true",
+          "data-onepassword-ignore": "true"
+        }}
+      >
+        {children}
+      </body>
     </html>
   );
 }
