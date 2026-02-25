@@ -31,7 +31,6 @@ export default function OTP() {
         newOtp[index] = value.substring(value.length - 1);
         setOtp(newOtp);
 
-        // Move to next input
         if (value && index < 5) {
             inputRefs[index + 1].current?.focus();
         }
@@ -52,12 +51,14 @@ export default function OTP() {
             return;
         }
 
-        // Mock verification
         if (otpValue === "123456") {
+            const pendingUser = localStorage.getItem("pending_user");
+            if (pendingUser) {
+                localStorage.setItem("active_user", pendingUser);
+            }
             alert("Verification Successful!");
             router.push("/home");
         } else {
-
             setError("Invalid OTP. Please try again.");
         }
     };

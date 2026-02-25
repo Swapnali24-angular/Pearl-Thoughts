@@ -52,6 +52,7 @@ export default function Signup() {
         }
 
         console.log("Signing up with:", formData);
+        localStorage.setItem("pending_user", JSON.stringify(formData));
         router.push("/otp");
     };
 

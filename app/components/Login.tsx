@@ -13,7 +13,6 @@ export default function Login() {
     const handleLogin = () => {
         setError("");
 
-        // Basic validation
         if (!inputValue.trim()) {
             setError("Please enter your Mobile or Email");
             return;
@@ -32,7 +31,6 @@ export default function Login() {
             return;
         }
 
-        // Stricter password check (matches signup)
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
             setError("Incorrect password format. Please check and try again.");
@@ -44,15 +42,11 @@ export default function Login() {
     };
 
     const handleGoogleLogin = () => {
-        console.log("Opening Google Login popup...");
-
-        // Define popup dimensions and position
         const width = 500;
         const height = 600;
         const left = window.screen.width / 2 - width / 2;
         const top = window.screen.height / 2 - height / 2;
 
-        // Official Google OAuth 2.0 URL
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
             `client_id=YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com&` +
             `redirect_uri=${window.location.origin}/login&` +
@@ -60,20 +54,16 @@ export default function Login() {
             `scope=email%20profile&` +
             `prompt=select_account`;
 
-        // Open the Google account picker popup
         window.open(
             googleAuthUrl,
             "GoogleLogin",
             `width=${width},height=${height},left=${left},top=${top}`
         );
-
     };
-
 
     return (
         <div className="login-wrapper">
             <div className="login-card">
-                {/* Logo */}
                 <div className="logo-box">
                     <img src="/assets/images/logo.png" alt="" />
                 </div>

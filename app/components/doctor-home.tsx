@@ -96,10 +96,6 @@ const doctors = [
     }
 ];
 
-
-
-
-
 export default function DoctorHome() {
     const [searchQuery, setSearchQuery] = useState("");
     const [bookedDoctors, setBookedDoctors] = useState<number[]>([]);
@@ -116,9 +112,35 @@ export default function DoctorHome() {
             setNotification({ message: `Appointment with ${doctor.name} is already booked!`, type: 'info' });
         } else {
             setBookedDoctors([...bookedDoctors, doctor.id]);
+
+            const savedApts = localStorage.getItem("doctor_appointments_v1");
+            const appointments = savedApts ? JSON.parse(savedApts) : [];
+
+            const activeUser = localStorage.getItem("active_user");
+            const userData = activeUser ? JSON.parse(activeUser) : null;
+
+            const newApt = {
+                id: Date.now(),
+                patient: userData ? userData.fullName : "Guest Patient",
+                time: "10:30 AM",
+                status: "Confirmed",
+                type: "Consultation",
+                category: "upcoming",
+                doctorName: doctor.name
+            };
+
+            const updatedApts = [...appointments, newApt];
+            localStorage.setItem("doctor_appointments_v1", JSON.stringify(updatedApts));
+
+            const doctorProfile = {
+                name: doctor.name,
+                initials: doctor.name.split(' ').map((n: string) => n[0]).join('').toUpperCase(),
+                experience: doctor.experience
+            };
+            localStorage.setItem("doctor_profile", JSON.stringify(doctorProfile));
+
             setNotification({ message: `Appointment with ${doctor.name} booked successfully!`, type: 'success' });
         }
-
 
         setTimeout(() => {
             setNotification(null);
@@ -154,7 +176,6 @@ export default function DoctorHome() {
                 </div>
             )}
 
-            {/* Navigation Header */}
             <header className="home-header">
                 <div className="logo-box" style={{ margin: 0, width: '45px', height: '45px', borderRadius: '12px', padding: '8px' }}>
                     <img src="/assets/images/logo.png" alt="" />
@@ -289,22 +310,23 @@ export default function DoctorHome() {
 
                         <div className="doctor-footer">
                             <div className="doctor-rating">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                                {doctor.rating}
-                            </div>
-                            <button
-                                className={`booking-btn ${bookedDoctors.includes(doctor.id) ? 'booked' : ''}`}
-                                onClick={() => handleBookAppointment(doctor)}
-                                style={{
-                                    backgroundColor: bookedDoctors.includes(doctor.id) ? '#10b981' : '#1e293b',
-                                }}
-                            >
-                                {bookedDoctors.includes(doctor.id) ? 'Appointment Booked' : 'Book Appointment'}
-                            </button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></polygon></svg>
+                            {doctor.rating}
                         </div>
+                        <button
+                            className={`booking-btn ${bookedDoctors.includes(doctor.id) ? 'booked' : ''}`}
+                            onClick={() => handleBookAppointment(doctor)}
+                            style={{
+                                backgroundColor: bookedDoctors.includes(doctor.id) ? '#10b981' : '#1e293b',
+                            }}
+                        >
+                            {bookedDoctors.includes(doctor.id) ? 'Appointment Booked' : 'Book Appointment'}
+                        </button>
                     </div>
-                ))}
-            </main>
-        </div>
+                    </div>
+    ))
+}
+            </main >
+        </div >
     );
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 export default function DoctorDashboard() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("overview");
+    const [aptSubTab, setAptSubTab] = useState("upcoming");
     const [appointments, setAppointments] = useState<any[]>([]);
     const [docInfo, setDocInfo] = useState({
         name: "Dr. Arjun",
@@ -19,20 +20,14 @@ export default function DoctorDashboard() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        // Load content
         const savedApts = localStorage.getItem("doctor_appointments_v1");
         const savedInfo = localStorage.getItem("doctor_profile");
 
         if (savedApts) {
             setAppointments(JSON.parse(savedApts));
         } else {
-            const defaults = [
-                { id: 1, patient: "Rahul Sharma", time: "09:30 AM", status: "Confirmed", type: "First Visit" },
-                { id: 2, patient: "Sneha Kapoor", time: "10:15 AM", status: "Pending", type: "Follow up" },
-                { id: 3, patient: "Amit Verma", time: "11:00 AM", status: "Confirmed", type: "Consultation" },
-            ];
-            setAppointments(defaults);
-            localStorage.setItem("doctor_appointments_v1", JSON.stringify(defaults));
+            setAppointments([]);
+            localStorage.setItem("doctor_appointments_v1", JSON.stringify([]));
         }
 
         if (savedInfo) {
@@ -49,22 +44,31 @@ export default function DoctorDashboard() {
     useEffect(() => {
         if (isLoaded) {
             setStats({
-                scheduledToday: appointments.length,
-                newPatients: appointments.filter(a => a.type === "First Visit").length,
+                scheduledToday: appointments.filter(a => a.category === "upcoming").length,
+                newPatients: appointments.filter(a => a.type === "First Visit" && a.category === "upcoming").length,
             });
             localStorage.setItem("doctor_appointments_v1", JSON.stringify(appointments));
         }
     }, [appointments, isLoaded]);
 
     const handleComplete = (id: number) => {
-        setAppointments(appointments.filter(a => a.id !== id));
+        setAppointments(appointments.map(a =>
+            a.id === id ? { ...a, category: 'completed', status: 'Completed' } : a
+        ));
     };
+
+    const handleCancel = (id: number) => {
+        setAppointments(appointments.map(a =>
+            a.id === id ? { ...a, category: 'cancelled', status: 'Cancelled' } : a
+        ));
+    };
+
+    const filteredAppointments = appointments.filter(a => a.category === aptSubTab);
 
     if (!isLoaded) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Dashboard...</div>;
 
     return (
         <div className="simple-dashboard-v2">
-            {/* Soft Sidebar */}
             <aside className="simple-sidebar">
                 <div className="sidebar-brand">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,7 +88,7 @@ export default function DoctorDashboard() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         Appointments
                     </button>
-                    <button className="side-link">
+                    <button className={`side-link ${activeTab === 'patients' ? 'active' : ''}`} onClick={() => setActiveTab('patients')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                         Patients
                     </button>
@@ -120,55 +124,129 @@ export default function DoctorDashboard() {
                 </header>
 
                 <div className="content-body">
+                    {activeTab === 'overview' && (
+                        <>
+                            <div className="metrics-row">
+                                <div className="metric-box bg-blue">
+                                    <span className="m-label">Scheduled today</span>
+                                    <span className="m-value">{stats.scheduledToday}</span>
+                                </div>
+                                <div className="metric-box bg-cyan">
+                                    <span className="m-label">New Patients</span>
+                                    <span className="m-value">{stats.newPatients}</span>
+                                </div>
+                                <div className="metric-box bg-green">
+                                    <span className="m-label">Experience</span>
+                                    <span className="m-value">{docInfo.experience}</span>
+                                </div>
+                            </div>
+                            <div className="list-section">
+                                <div className="list-header">
+                                    <h2>Quick Glance</h2>
+                                    <button className="text-btn" onClick={() => setActiveTab('appointments')}>View Schedule</button>
+                                </div>
+                                <p style={{ color: '#64748b', fontSize: '15px', lineHeight: '1.6' }}>
+                                    Welcome back, {docInfo.name}. You have <b>{stats.scheduledToday}</b> appointments lined up for today.
+                                    Check your schedule to manage upcoming visits or view completed patient history.
+                                </p>
+                            </div>
+                        </>
+                    )}
 
-                    <div className="metrics-row">
-                        <div className="metric-box bg-blue">
-                            <span className="m-label">Scheduled today</span>
-                            <span className="m-value">{stats.scheduledToday}</span>
-                        </div>
-                        <div className="metric-box bg-cyan">
-                            <span className="m-label">New Patients</span>
-                            <span className="m-value">{stats.newPatients}</span>
-                        </div>
-                        <div className="metric-box bg-green">
-                            <span className="m-label">Experience</span>
-                            <span className="m-value">{docInfo.experience}</span>
-                        </div>
-                    </div>
-
-                    {/* Table Section */}
-                    <div className="list-section">
-                        <div className="list-header">
-                            <h2>Today's Appointments</h2>
-                            <button className="text-btn">View full schedule</button>
-                        </div>
-                        <div className="modern-table">
-                            {appointments.length > 0 ? appointments.map(apt => (
-                                <div key={apt.id} className="modern-row">
-                                    <div className="row-patient">
-                                        <div className="p-icon">{apt.patient.charAt(0)}</div>
-                                        <div className="p-name">
-                                            <span>{apt.patient}</span>
-                                            <small>{apt.type}</small>
+                    {activeTab === 'appointments' && (
+                        <div className="list-section">
+                            <div className="list-header">
+                                <div className="apt-tabs">
+                                    <button
+                                        className={`apt-tab ${aptSubTab === 'upcoming' ? 'active' : ''}`}
+                                        onClick={() => setAptSubTab('upcoming')}
+                                    >
+                                        Upcoming
+                                    </button>
+                                    <button
+                                        className={`apt-tab ${aptSubTab === 'completed' ? 'active' : ''}`}
+                                        onClick={() => setAptSubTab('completed')}
+                                    >
+                                        Completed
+                                    </button>
+                                    <button
+                                        className={`apt-tab ${aptSubTab === 'cancelled' ? 'active' : ''}`}
+                                        onClick={() => setAptSubTab('cancelled')}
+                                    >
+                                        Cancelled
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="modern-table">
+                                {filteredAppointments.length > 0 ? filteredAppointments.map(apt => (
+                                    <div key={apt.id} className="modern-row">
+                                        <div className="row-patient">
+                                            <div className="p-icon">{apt.patient.charAt(0)}</div>
+                                            <div className="p-name">
+                                                <span>{apt.patient}</span>
+                                                <small>{apt.type}</small>
+                                            </div>
+                                        </div>
+                                        <div className="row-time">{apt.time}</div>
+                                        <div className="row-doctor">
+                                            <small style={{ display: 'block', color: '#64748b', fontSize: '11px', fontWeight: '600' }}>Doctor</small>
+                                            <span style={{ fontSize: '13px', fontWeight: '700' }}>{apt.doctorName || docInfo.name}</span>
+                                        </div>
+                                        <div className="row-status">
+                                            <span className={`status-pill ${apt.status.toLowerCase()}`}>{apt.status}</span>
+                                        </div>
+                                        <div className="row-actions">
+                                            {apt.category === 'upcoming' && (
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    <button className="icon-btn complete" title="Mark as Complete" onClick={() => handleComplete(apt.id)}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                    </button>
+                                                    <button className="icon-btn cancel" title="Cancel Appointment" onClick={() => handleCancel(apt.id)}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="row-time">{apt.time}</div>
-                                    <div className="row-status">
-                                        <span className={`status-pill ${apt.status.toLowerCase()}`}>{apt.status}</span>
+                                )) : (
+                                    <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                        No {aptSubTab} appointments found.
                                     </div>
-                                    <div className="row-actions">
-                                        <button className="icon-btn" title="Mark as Complete" onClick={() => handleComplete(apt.id)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            )) : (
-                                <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-                                    No appointments scheduled for today.
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {activeTab === 'patients' && (
+                        <div className="list-section">
+                            <div className="list-header">
+                                <h2>Patient Directory</h2>
+                            </div>
+                            <div className="modern-table">
+                                {[...new Set(appointments.map(a => a.patient))].length > 0 ?
+                                    [...new Set(appointments.map(a => a.patient))].map((pName, idx) => (
+                                        <div key={idx} className="modern-row" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                                            <div className="row-patient">
+                                                <div className="p-icon">{pName.charAt(0)}</div>
+                                                <div className="p-name">
+                                                    <span>{pName}</span>
+                                                </div>
+                                            </div>
+                                            <div className="row-meta">
+                                                <small style={{ color: '#64748b' }}>Total Appointments: {appointments.filter(a => a.patient === pName).length}</small>
+                                            </div>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <button className="text-btn">View Records</button>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                            No patient records found yet.
+                                        </div>
+                                    )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main >
 
@@ -312,11 +390,44 @@ export default function DoctorDashboard() {
                     margin-bottom: 20px;
                 }
                 .list-header h2 { font-size: 18px; font-weight: 800; }
+                .apt-tabs {
+                    display: flex;
+                    gap: 12px;
+                    border-bottom: 1px solid #f1f5f9;
+                    margin-bottom: -1px;
+                }
+                .apt-tab {
+                    padding: 8px 16px;
+                    background: none;
+                    border: none;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #64748b;
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.2s ease;
+                }
+                .apt-tab:hover {
+                    color: #1e293b;
+                }
+                .apt-tab.active {
+                    color: #0072ff;
+                }
+                .apt-tab.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 16px;
+                    right: 16px;
+                    height: 2px;
+                    background: #0072ff;
+                    border-radius: 2px;
+                }
                 .text-btn { background: none; border: none; color: #0072ff; font-weight: 700; font-size: 14px; cursor: pointer; }
                 .modern-table { display: flex; flex-direction: column; gap: 10px; }
                 .modern-row {
                     display: grid;
-                    grid-template-columns: 2fr 1fr 1.2fr 40px;
+                    grid-template-columns: 2fr 1fr 1.5fr 1.2fr 80px;
                     align-items: center;
                     padding: 16px;
                     background: #f8fafc;
@@ -347,9 +458,12 @@ export default function DoctorDashboard() {
                     font-size: 12px;
                     font-weight: 700;
                     display: inline-block;
+                    text-transform: capitalize;
                 }
                 .status-pill.confirmed { background: #dcfce7; color: #15803d; }
                 .status-pill.pending { background: #fef9c3; color: #a16207; }
+                .status-pill.completed { background: #dcfce7; color: #15803d; }
+                .status-pill.cancelled { background: #fee2e2; color: #ef4444; }
                 .icon-btn {
                     background: white;
                     border: 1px solid #e2e8f0;
@@ -361,8 +475,11 @@ export default function DoctorDashboard() {
                     justify-content: center;
                     color: #64748b;
                     cursor: pointer;
+                    transition: all 0.2s ease;
                 }
                 .icon-btn:hover { color: #0072ff; border-color: #0072ff; }
+                .icon-btn.complete:hover { color: #10b981; border-color: #10b981; background: #f0fdf4; }
+                .icon-btn.cancel:hover { color: #ef4444; border-color: #ef4444; background: #fef2f2; }
             `}</style>
         </div >
     );

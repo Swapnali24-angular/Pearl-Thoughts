@@ -62,7 +62,7 @@
 }
 
 .input-group .input {
-  padding-right: 45px; /* Space for the eye icon - ONLY on password field */
+  padding-right: 45px;
 }
 
 
@@ -70,7 +70,7 @@
   position: absolute;
   right: 12px;
   top: 50%;
-  transform: translateY(-90%); /* Adjusted due to margin-bottom on input */
+  transform: translateY(-90%);
   background: none;
   border: none;
   color: #888;
@@ -260,7 +260,6 @@
   text-decoration: underline;
 }
 
-/* Global Design Tokens */
 :root {
   --primary: #0072ff;
   --primary-glow: rgba(0, 114, 255, 0.4);
@@ -285,14 +284,13 @@
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
 }
 
-/* Premium Signup Card - Compact Version */
 .compact-card {
   width: 420px;
   background: var(--card-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 24px;
-  padding: 24px 32px; /* Tightened padding */
+  padding: 24px 32px;
   box-shadow: var(--shadow-xl);
   border: 1px solid rgba(255, 255, 255, 0.3);
   position: relative;
@@ -373,7 +371,7 @@
   padding: 11px 14px;
   font-size: 14px;
   color: var(--text-main);
-  margin-bottom: 14px; /* Reduced margin */
+  margin-bottom: 14px;
 }
 
 .login-btn {
@@ -430,16 +428,10 @@
   40%, 60% { transform: translate3d(3px, 0, 0); }
 }
 
-
-
-
-
-
 .login-btn:hover, .google-btn:hover {
   opacity: 0.9;
 }
 
-/* Doctor Dashboard / Listing Page */
 .home-container {
   min-height: 100vh;
   background: #f8fafc;
@@ -491,7 +483,6 @@
   transition: color 0.3s ease;
 }
 
-/* Listing Hero Section */
 .hero-section {
   background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%, #10b981 150%);
   padding: 80px 40px 120px;
@@ -515,7 +506,6 @@
   margin: 0 auto;
 }
 
-/* Card Grid Styles */
 .doctors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -687,7 +677,6 @@
   letter-spacing: 0.5px;
 }
 
-/* Dashboard Layout */
 .dashboard-wrapper {
   display: flex;
   min-height: 100vh;
@@ -695,7 +684,6 @@
   color: #1e293b;
 }
 
-/* Sidebar */
 .dashboard-sidebar {
   width: 280px;
   background: #ffffff;
@@ -772,7 +760,6 @@
   cursor: pointer;
 }
 
-/* Main Content */
 .dashboard-content {
   flex: 1;
   padding: 40px;
@@ -817,7 +804,6 @@
   cursor: pointer;
 }
 
-/* Stats Cards */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -871,7 +857,6 @@
   color: #22c55e;
 }
 
-/* Dashboard Main Grid */
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -1013,7 +998,6 @@
 
 .icon-btn.edit:hover { color: #0072ff; border-color: #0072ff; }
 
-/* Schedule Side Card */
 .schedule-list {
   display: flex;
   flex-direction: column;
